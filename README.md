@@ -1,7 +1,7 @@
 # MasterThesis : "Kidney segmentation in MRI images using deep learning: A comparison between U-NET and Attention U-NET"
 
 This folder contains:
-- My master thesis file: "Kidney segmentation in MRI images using deep learning: A comparison between U-NET and Attention U-NET";
+- My master thesis document: "Kidney segmentation in MRI images using deep learning: A comparison between U-NET and Attention U-NET";
 - Extended Summary of Master thesis in IEEE article format;
 - Contains machine learning models for kidney segmentation from 2 classes (kidney and background);
 - Contains machine learning models for kidney segmentation from 3 classes (kidney, contour and background);
