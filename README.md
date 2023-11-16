@@ -15,6 +15,9 @@ Models include:
 - Evaluation graphs;
 - 10-k cross-validation.
 
+Loss functions implemented:
+- Cross-Entropy loss function;
+- Focal loss function.
 
 TO BETTER UNDERSTAND THEORICAL AND PRACTICAL APPROACHES, I RECOMMEND READING THE EXTENDED SUMMARY.
 
