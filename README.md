@@ -13,7 +13,7 @@ Models include:
 - Prediction;
 - Evaluation (confusion matrix, recall, precision, dice, iou);
 - Evaluation graphs;
-- 10-k cross-validation.
+- 10-k leave-one-out cross-validation.
 
 Loss functions implemented:
 - Cross-Entropy loss function;
