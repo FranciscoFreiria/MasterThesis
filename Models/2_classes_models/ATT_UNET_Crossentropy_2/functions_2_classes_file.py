@@ -18,9 +18,7 @@ import numpy as np
 import albumentations as A
 from tensorflow import keras
 from keras import backend as K
-#from keras.metrics import MeanIoU
 from tensorflow.keras import models, layers
-#from tensorflow.keras import models, layers, regularizers
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, concatenate, Conv2DTranspose, Dropout, add, Activation, UpSampling2D, multiply, BatchNormalization, Lambda, Input 
 from skimage.io import imread, imshow, imsave
 from skimage.transform import resize
@@ -46,7 +44,8 @@ def plot_image(img):
     plt.show(block=False)
     plt.pause(3)
     plt.close()
-
+    
+#####UNET#####
 def unet_model():
     start_neurons = 16
     FILTER_NUM = 16 # number of basic filters for the first layer
@@ -59,74 +58,36 @@ def unet_model():
 
     s = tf.keras.layers.Lambda(lambda x: x / 255.0)(inputs)
 
-    #conv1 = Conv2D(start_neurons * 1, (3, 3), activation="relu", padding="same")(s)
     conv1 = conv_block(s, FILTER_SIZE, FILTER_NUM, dropout_rate, batch_norm)
-    #conv1 = Dropout(0.1)(conv1)
-    #conv1 = Conv2D(start_neurons * 1, (3, 3), activation="relu", padding="same")(conv1)
-    #conv1 = conv_block(conv1, FILTER_SIZE, FILTER_NUM, dropout_rate, batch_norm)
     pool1 = MaxPooling2D((2, 2))(conv1)
     
-    #conv2 = Conv2D(start_neurons * 2, (3, 3), activation="relu", padding="same")(pool1)
     conv2 = conv_block(pool1, FILTER_SIZE, 2*FILTER_NUM, dropout_rate, batch_norm)
-    #conv2 = Dropout(0.1)(conv2)
-    #conv2 = Conv2D(start_neurons * 2, (3, 3), activation="relu", padding="same")(conv2)
-    #conv2 = conv_block(conv2, FILTER_SIZE, 2*FILTER_NUM, dropout_rate, batch_norm)
     pool2 = MaxPooling2D((2, 2))(conv2)
     
-    #conv3 = Conv2D(start_neurons * 4, (3, 3), activation="relu", padding="same")(pool2)
     conv3 = conv_block(pool2, FILTER_SIZE, 4*FILTER_NUM, dropout_rate, batch_norm)
-    #conv3 = Dropout(0.2)(conv3)
-    #conv3 = Conv2D(start_neurons * 4, (3, 3), activation="relu", padding="same")(conv3)
-    #conv3 = conv_block(conv3, FILTER_SIZE, 4*FILTER_NUM, dropout_rate, batch_norm)
     pool3 = MaxPooling2D((2, 2))(conv3)
     
-    
-    #conv4 = Conv2D(start_neurons * 8, (3, 3), activation="relu", padding="same")(pool3)
     conv4 = conv_block(pool3, FILTER_SIZE, 8*FILTER_NUM, dropout_rate, batch_norm)
-    #conv4 = Dropout(0.2)(conv4)
-    #conv4 = Conv2D(start_neurons * 8, (3, 3), activation="relu", padding="same")(conv4)
-    #conv4 = conv_block(conv4, FILTER_SIZE, 8*FILTER_NUM, dropout_rate, batch_norm)
     pool4 = MaxPooling2D((2, 2))(conv4)
     
-    
     # Middle
-    #convm = Conv2D(start_neurons * 16, (3, 3), activation="relu", padding="same")(pool4)
     convm = conv_block(pool4, FILTER_SIZE, 16*FILTER_NUM, dropout_rate, batch_norm)
-    #convm = Dropout(0.3)(convm)
-    #convm = Conv2D(start_neurons * 16, (3, 3), activation="relu", padding="same")(convm)
-    #convm = conv_block(convm, FILTER_SIZE, 16*FILTER_NUM, dropout_rate, batch_norm)
     deconv4 = Conv2DTranspose(start_neurons * 8, (3, 3), strides=(2, 2), padding="same")(convm)
     uconv4 = concatenate([deconv4, conv4])
         
-    #uconv4 = Conv2D(start_neurons * 8, (3, 3), activation="relu", padding="same")(uconv4)
     uconv4 = conv_block(uconv4, FILTER_SIZE, 8*FILTER_NUM, dropout_rate, batch_norm)
-    #uconv4 = Dropout(0.2)(uconv4)
-    #uconv4 = Conv2D(start_neurons * 8, (3, 3), activation="relu", padding="same")(uconv4)
-    #uconv4 = conv_block(uconv4, FILTER_SIZE, 8*FILTER_NUM, dropout_rate, batch_norm)
     
     deconv3 = Conv2DTranspose(start_neurons * 4, (3, 3), strides=(2, 2), padding="same")(uconv4)
     uconv3 = concatenate([deconv3, conv3])
-    #uconv3 = Conv2D(start_neurons * 4, (3, 3), activation="relu", padding="same")(uconv3)
     uconv3 = conv_block(uconv3, FILTER_SIZE, 4*FILTER_NUM, dropout_rate, batch_norm)
-    #uconv3 = Dropout(0.2)(uconv3)
-    #uconv3 = Conv2D(start_neurons * 4, (3, 3), activation="relu", padding="same")(uconv3)
-    #uconv3 = conv_block(uconv3, FILTER_SIZE, 4*FILTER_NUM, dropout_rate, batch_norm)
     
     deconv2 = Conv2DTranspose(start_neurons * 2, (3, 3), strides=(2, 2), padding="same")(uconv3)
     uconv2 = concatenate([deconv2, conv2])
-    #uconv2 = Conv2D(start_neurons * 2, (3, 3), activation="relu", padding="same")(uconv2)
     uconv2 = conv_block(uconv2, FILTER_SIZE, 2*FILTER_NUM, dropout_rate, batch_norm)
-    #uconv2 = Dropout(0.1)(uconv2)
-    #uconv2 = Conv2D(start_neurons * 2, (3, 3), activation="relu", padding="same")(uconv2)
-    #uconv2 = conv_block(uconv2, FILTER_SIZE, 2*FILTER_NUM, dropout_rate, batch_norm)
     
     deconv1 = Conv2DTranspose(start_neurons * 1, (3, 3), strides=(2, 2), padding="same")(uconv2)
     uconv1 = concatenate([deconv1, conv1])
-    #uconv1 = Conv2D(start_neurons * 1, (3, 3), activation="relu", padding="same")(uconv1)
     uconv1 = conv_block(uconv1, FILTER_SIZE, 1*FILTER_NUM, dropout_rate, batch_norm)
-    #uconv1 = Dropout(0.1)(uconv1)
-    #uconv1 = Conv2D(start_neurons * 1, (3, 3), activation="relu", padding="same")(uconv1)
-    #uconv1 = conv_block(uconv1, FILTER_SIZE, 1*FILTER_NUM, dropout_rate, batch_norm)
         
     output_layer = Conv2D(NUM_CLASSES, (1,1), padding="same", activation="sigmoid")(uconv1)
     return tf.keras.Model(inputs=inputs, outputs=output_layer)
@@ -269,8 +230,8 @@ def gating_signal(input, out_size, batch_norm=False):
         x = layers.BatchNormalization()(x)
     x = layers.Activation('relu')(x)
     return x
-#####NOVODICE#####
     
+#####METRCIS#####
 class ConfusionMatrix(tf.keras.metrics.Metric):
     def __init__(self, num_classes, **kwargs):
         super(ConfusionMatrix, self).__init__(**kwargs)
@@ -408,8 +369,8 @@ def isNaN(num):
     else:
         num = num
     return num
-#####NOVO#########
-
+    
+#####LOAD DATASET#########
 def load_image(TRAIN_PATH, _id):
     img = imread(TRAIN_PATH + _id)[:,:,:IMG_CHANNELS]
     img = resize(img, (IMG_HEIGHT, IMG_WIDTH,1), mode='constant', preserve_range=True, anti_aliasing=False)
@@ -422,7 +383,7 @@ def load_mask(TRAIN_MASK_PATH, _id):
     mask = np.maximum(mask, mask_)
     mask = normalize(mask)
     return mask
-
+    
 def step_decay(epoch):
     initial_lrate = 1e-3
     drop = 0.1
