@@ -10,18 +10,11 @@ import tensorflow as tf
 import functions_2_classes_file as f
 import numpy as np
 import json
-#import random
 import time
 from tqdm import tqdm
-#from keras.metrics import MeanIoU
-#from tensorflow.keras import losses
-#from tensorflow.keras.utils import to_categorical
 from sklearn.utils import shuffle
 from skimage.io import imsave
-#import matplotlib.pyplot as plt
-#from segmentation_models.losses import CategoricalFocalLoss
-#from segmentation_models.metrics import IOUScore, FScore
-#from sklearn.metrics import confusion_matrix 
+
 
 import sys
 sys.stderr = sys.stdout
@@ -46,8 +39,8 @@ IMG_CHANNELS = 1
 NUM_CLASSES = 1
 
 #[HYPER] Mudar testar ou correr  
-IMAGE_PATH = './Train8/images/'
-MASK_PATH = './Train8/masks/'
+IMAGE_PATH = './Train/images/'
+MASK_PATH = './Train/masks/'
 
 #[HYPER] Mudar testar ou correr 
 AUG_IMAGE_PATH = f.create_folder('Train8_aug/images/')
@@ -123,12 +116,10 @@ def main():
     X_train, Y_train = shuffle(X_train, Y_train)
     
     
-    ####Sanity test####
-    
+    ####Sanity test####    
     #image_x = random.randint(0, (len(Y_train[1::])-1))
     #f.plot_image(np.squeeze(X_train[image_x]))
     #f.plot_image(np.squeeze(Y_train[image_x]))
-    
     ####Check test####
     '''
     for z in range(len(Y_train[1::])+1):
@@ -137,25 +128,15 @@ def main():
         f.plot_image(np.squeeze(Y_train[z]))
         print("#############END################")
     '''
-    ################################
-    #Categorias
-    
-    #[HYPER] To categorical para 3 classes
-    #Y_train_cat = to_categorical(Y_train, num_classes=NUM_CLASSES) 
-    #Y_test_cat = to_categorical(Y_test, num_classes=NUM_CLASSES)
-    ################################
+    ####################################
     #Build Model 
     
     #[HYPER] Mudar Modelo
     unet_model = f.Attention_UNet(NUM_CLASSES)
-    #unet_model = f.unet_model()
     
     #[HYPER] Mudar funcao de perda
     #loss = [CategoricalFocalLoss()]
     loss = [tf.keras.losses.BinaryCrossentropy()]
-    #confusion_matrix = f.ConfusionMatrix(num_classes=2)
-    #metric = [tf.keras.metrics.BinaryAccuracy(), FScore(name = 'dice_coef'), IOUScore(name = 'IOU_mean'), tf.keras.metrics.Precision()]
-    #metrics=[confusion_matrix, confusion_matrix.accuracy,tf.keras.metrics.BinaryAccuracy()]
     unet_model.compile(optimizer=tf.keras.optimizers.Adam(), loss=loss, metrics=[tf.keras.metrics.BinaryAccuracy(),
                        f.BinaryTruePositives(), f.BinaryTrueNegatives(),
                        f.BinaryFalsePositives(), f.BinaryFalseNegatives()])
@@ -337,9 +318,7 @@ for n, (i_ids, m_ids) in enumerate(zip(image_ids, mask_ids)):
             tf.keras.backend.clear_session()        
 
     else:
-        print('##############################')
-        print('Nao faz nada')
-        print('##############################')
+        print('ERROR!')
     image_ids.append(test_ids[0])
     mask_ids.append(test_mask_ids[0])
 
